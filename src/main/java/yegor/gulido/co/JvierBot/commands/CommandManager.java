@@ -67,9 +67,9 @@ public class CommandManager extends ListenerAdapter {
             if (authorRole.equals("Yegor")) {
                 assert member != null;
                 event.getGuild().addRoleToMember(member, role).queue();
-                event.reply(member.getAsMention() + " got the " + role.getAsMention() + " role").queue();
+                event.reply(member.getAsMention() + " got the " + role.getAsMention() + " role").setEphemeral(true).queue();
             } else {
-                event.reply("You cannot give roles to members!").queue();
+                event.reply("You cannot give roles to members!").setEphemeral(true).queue();
             }
         }
     }
