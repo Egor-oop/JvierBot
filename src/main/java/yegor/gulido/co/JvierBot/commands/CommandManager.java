@@ -14,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class CommandManager extends ListenerAdapter {
 
@@ -55,17 +56,32 @@ public class CommandManager extends ListenerAdapter {
                 Member member = event.getOption("user").getAsMember();
                 Role role = event.getOption("role").getAsRole();
                 Member messageAuthor = event.getMember();
+
+                assert member != null;
+                assert messageAuthor != null;
+
+                List<Role> memberRoles = member.getRoles();
+
                 String authorRole;
                 try {
                     authorRole = messageAuthor.getRoles().get(0).getName();
                 } catch (IndexOutOfBoundsException e) {
                     authorRole = "";
                 }
-                System.out.println();
-                if (authorRole.equals("Yegor")) {
-                    assert member != null;
-                    event.getGuild().addRoleToMember(member, role).queue();
-                    event.reply(member.getAsMention() + " got the " + role.getAsMention() + " role").setEphemeral(true).queue();
+
+                if (authorRole.equals("Admin")) {
+                    boolean hasMemberRole = false;
+                    for (Role memberRole : memberRoles) {
+                        if (memberRole.equals(role)) {
+                            hasMemberRole = true;
+                            event.reply("This member already has the " + role.getAsMention() + " role").setEphemeral(true).queue();
+                        }
+                    }
+
+                    if (!hasMemberRole) {
+                        Objects.requireNonNull(event.getGuild()).addRoleToMember(member, role).queue();
+                        event.reply(member.getAsMention() + " got the " + role.getAsMention() + " role").setEphemeral(true).queue();
+                    }
                 } else {
                     event.reply("You cannot give roles to members!").setEphemeral(true).queue();
                 }
