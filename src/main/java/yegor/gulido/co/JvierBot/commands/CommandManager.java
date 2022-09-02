@@ -20,56 +20,55 @@ public class CommandManager extends ListenerAdapter {
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
         String command = event.getName();
-        if (command.equals("welcome")) {
-            // Run the '/welcome' command
-            String userTag = event.getUser().getAsMention();
-            event.reply("Welcome to the server, " + userTag + "!").setEphemeral(true).queue();
-
-        } else if (command.equals("roles")) {
-            // Run the '/roles' command
-            event.deferReply().setEphemeral(true).queue();
-            String response = "";
-            for (Role role : event.getGuild().getRoles()) {
-                response += role.getAsMention() + "\n";
+        switch (command) {
+            case "welcome" -> {
+                // Run the '/welcome' command
+                String userTag = event.getUser().getAsMention();
+                event.reply("Welcome to the server, " + userTag + "!").setEphemeral(true).queue();
             }
-            event.getHook().sendMessage(response).queue();
-
-        } else if (command.equals("echo")) {
-            OptionMapping messageOption = event.getOption("message");
-            String message = "";
-            if (messageOption != null) {
-                message = messageOption.getAsString();
+            case "roles" -> {
+                // Run the '/roles' command
+                event.deferReply().setEphemeral(true).queue();
+                String response = "";
+                for (Role role : event.getGuild().getRoles()) {
+                    response += role.getAsMention() + "\n";
+                }
+                event.getHook().sendMessage(response).queue();
             }
-
-            MessageChannel channel;
-            OptionMapping channelOption = event.getOption("channel");
-            if (channelOption != null) {
-                channel = channelOption.getAsChannel().asTextChannel();
-            } else {
-                channel = event.getChannel();
+            case "echo" -> {
+                OptionMapping messageOption = event.getOption("message");
+                String message = "";
+                if (messageOption != null) {
+                    message = messageOption.getAsString();
+                }
+                MessageChannel channel;
+                OptionMapping channelOption = event.getOption("channel");
+                if (channelOption != null) {
+                    channel = channelOption.getAsChannel().asTextChannel();
+                } else {
+                    channel = event.getChannel();
+                }
+                channel.sendMessage(message).queue();
+                event.reply("Ваше сообщение было отправлено").setEphemeral(true).queue();
             }
-
-            channel.sendMessage(message).queue();
-            event.reply("Ваше сообщение было отправлено").setEphemeral(true).queue();
-        } else if (command.equals("giverole")) {
-            Member member = event.getOption("user").getAsMember();
-            Role role = event.getOption("role").getAsRole();
-
-            Member messageAuthor = event.getMember();
-            String authorRole;
-            try {
-                authorRole = messageAuthor.getRoles().get(0).getName();
-            } catch (IndexOutOfBoundsException e) {
-                authorRole = "";
-            }
-
-            System.out.println();
-            if (authorRole.equals("Yegor")) {
-                assert member != null;
-                event.getGuild().addRoleToMember(member, role).queue();
-                event.reply(member.getAsMention() + " got the " + role.getAsMention() + " role").setEphemeral(true).queue();
-            } else {
-                event.reply("You cannot give roles to members!").setEphemeral(true).queue();
+            case "giverole" -> {
+                Member member = event.getOption("user").getAsMember();
+                Role role = event.getOption("role").getAsRole();
+                Member messageAuthor = event.getMember();
+                String authorRole;
+                try {
+                    authorRole = messageAuthor.getRoles().get(0).getName();
+                } catch (IndexOutOfBoundsException e) {
+                    authorRole = "";
+                }
+                System.out.println();
+                if (authorRole.equals("Yegor")) {
+                    assert member != null;
+                    event.getGuild().addRoleToMember(member, role).queue();
+                    event.reply(member.getAsMention() + " got the " + role.getAsMention() + " role").setEphemeral(true).queue();
+                } else {
+                    event.reply("You cannot give roles to members!").setEphemeral(true).queue();
+                }
             }
         }
     }
